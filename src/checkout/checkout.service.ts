@@ -1,25 +1,26 @@
 import { Injectable } from "@nestjs/common";
 import { OrderItemDto } from "src/checkout/dto/add-item.dto";
 import { Param } from "@nestjs/common/decorators/http/route-params.decorator";
-import { Clients } from "src/http-clients";
+import { CheckoutClient } from "../http-clients/checkoutClient";
 
 @Injectable()
 export class CheckoutService {
-  constructor(private readonly clients: Clients) {}
+  constructor(private readonly clients: CheckoutClient) {}
 
   async addItem(orderItem: OrderItemDto, @Param() id: string) {
-    const currentItems = await this.clients.checkout.getAllOrdersCart(id).then((res) => res.items);
+    const currentItems = await this.clients.getAllOrdersCart(id).then((res) => res.data.items);
     const updatedItem = this.updateItemQuantity(currentItems, orderItem);
-
-    return await this.clients.checkout.addItem(id, updatedItem).then((res) => res.items);
+    return await this.clients.addItem(id, updatedItem).then((res) => res.data.items);
   }
 
   async updateItem(orderItem: OrderItemDto, id: string) {
-    return await this.clients.checkout.updateItem(id, orderItem).then((res) => res.items);
+    return await this.clients.updateItem(id, orderItem).then((res) => {
+      return res.data.items;
+    });
   }
 
   async getOrCreateCart(forceNewCart: "true" | undefined) {
-    return await this.clients.checkout.getOrCreateCart(forceNewCart === "true");
+    return await this.clients.getOrCreateCart(forceNewCart === "true");
   }
 
   private updateItemQuantity = (currentItems: OrderFormItem[], orderItem: OrderItem): OrderItem => {
