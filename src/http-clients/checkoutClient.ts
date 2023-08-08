@@ -16,7 +16,6 @@ export class CheckoutClient implements OnModuleInit {
 
   onModuleInit() {
     this.http = this.httpService.axiosRef;
-    this.http.defaults.withCredentials = true; // set withCredentials to true
   }
 
   public getOrCreateCart = (forceNewCart?: boolean) =>
